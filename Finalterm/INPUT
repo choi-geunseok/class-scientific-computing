@@ -5,8 +5,8 @@
  2      ! PACKET: wavepacket parameter (1=LORNTZ, 2=GAUSS )
 -0.2    ! W0: Center of Packet
  0.05   ! SIGMA: Width of Packet
- 20     ! CYCLES: no of cycles on lattice
- 100    ! NPTS:   no of grid points on axis
- 40     ! NSTEP: number of time steps'
+ 25     ! CYCLES: no of cycles on lattice (Recommend=25, limit<0.25*NPTS)
+ 500    ! NPTS:   no of grid points on axis
+ 100    ! NSTEP: number of time steps'
  0.5    ! DTSCAL:  Enter time step (units of K0**-2)
  5      ! DTMAX:  max scaled time step
