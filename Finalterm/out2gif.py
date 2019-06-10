@@ -115,5 +115,5 @@ os.system('mv *.png result')
 os.chdir('result')
 os.system('convert -delay 5 -loop 1000 -quality 100 -resize 500x500 *.png movie.gif')
 os.system('rm -rf *.png')
-os.system('magick animate movie.gif')
+os.system('animate movie.gif')
 
