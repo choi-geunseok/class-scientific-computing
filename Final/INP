@@ -1,0 +1,12 @@
+ 1      ! POT: potential shape parameter (1=SQUARE,2=GAUSS,3=PARAB,4=STEP,5=DOUBLE_SQUARE)
+ 0.1    ! X0: central position of potential on axis
+ 0.05   ! A: half width of potential
+ 0.2    ! V0: height of potential
+ 2      ! PACKET: wavepacket parameter (1=LORNTZ, 2=GAUSS, 3=USER)
+-0.2    ! W0: Center of Packet
+ 0.05   ! SIGMA: Width of Packet
+ 25     ! CYCLES: no of cycles on lattice
+ 100    ! NPTS:   no of grid points on axis
+ 100    ! NSTEP: number of time steps'
+ 0.5    ! DTSCAL:  Enter time step (units of K0**-2)
+ 5      ! DTMAX:  max scaled time step
