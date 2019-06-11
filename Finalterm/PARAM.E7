@@ -25,9 +25,9 @@
       REAL V(0:MAXLAT)  !array of potential values
       COMPLEX GAMMA(0:MAXLAT) !terms in matrix inversion
 !
-      INTEGER SQUARE,GAUSS,PARAB,STEP !types of potentials
-      INTEGER LORNTZ                  !types of packets
-      PARAMETER (SQUARE=1,GAUSS=2,PARAB=3,STEP=4,LORNTZ=1)
+      INTEGER SQUARE,GAUSS,PARAB,STEP,DOUBLE_SQUARE !types of potentials
+      INTEGER LORNTZ,USER                  !types of packets
+      PARAMETER (SQUARE=1,GAUSS=2,PARAB=3,STEP=4,LORNTZ=1,DOUBLE_SQUARE=5,USER=3)
 !
       COMMON / CONST / PI,VXMIN,VXMAX,SQRTM1,ASTEP,AGAUSS
       COMMON / PPARAM / POT,X0,A,V0,PACKET,SIGMA,W0,XMID

@@ -96,7 +96,7 @@
                                 !!max scaled time step                   
       !DTMAX=100. 
                                 !minimum scaled time step               
-     OPEN(10, FILE='INPUT', FORM='FORMATTED') 
+     OPEN(10, FILE='INP', FORM='FORMATTED') 
      READ(10,*) 
      READ(10,*) 
      READ(10,*) 
@@ -116,7 +116,7 @@
 !                                                                       
                                 !loop over different DT and/or NSTEP    
       
-!     OPEN(10, FILE='INPUT', FORM='FORMATTED') 
+!     OPEN(10, FILE='INP', FORM='FORMATTED') 
 !     READ(10,*) ET 
 !     CLOSE(10)     
 !     DO  EL=1,ET 
@@ -165,7 +165,9 @@
              IF ((MOVIES) .AND. (MOD(IT,NFREQ) .EQ. 0)) THEN 
                 FRAME=MOD(IT/NFREQ,4) 
                 IF (FRAME .EQ. 1) THEN 
-                    CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) 
+!                    CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) ! Original
+                     CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)  ! Redefined MEK:2019.06.11 
+
                 ELSE 
                     CALL GRFSEC(SCREEN,PHI2,TIME,TPROB,TX,FRAME) 
                 END IF 
@@ -186,9 +188,13 @@
              !PAUSE('to see the wave packet ...') 
              !CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) 
           !END IF 
-          IF (GFILE) CALL GRFOUT(FILE,PHI2,TIME,TPROB,TX,E) 
-          IF (GHRDCP) CALL GRFOUT(PAPER,PHI2,TIME,TPROB,TX,E) 
-!                                                                       
+         IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)  ! Redefined MEK:2019.06.11 
+!         IF (GFILE) CALL GRFOUT(DEVICE,PHI,PHI2,TIME,TPROB,TX,E)  ! Redefined MEK:2019.06.11 
+
+!          IF (GHRDCP) CALL GRFOUT(PAPER,PHI2,TIME,TPROB,TX,E) !Original 
+!          IF (GHRDCP) CALL GRFOUT(PAPER,PHI2,TIME,TPROB,TX,E) !Original
+
+                                                              
           !MORE=LOGCVT(YESNO(1,'Continue iterating?')) 
           MORE= .TRUE.  
         !IF (MORE) THEN 
@@ -340,6 +346,7 @@
       REAL PE 
                                  !kinetic energy                        
       COMPLEX KE 
+      REAL A_real, A_imag 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
                                  !initialize sums                       
       PE=0. 
@@ -373,7 +380,7 @@
                                    !average position                    
       REAL LX,RX,TX 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-                                           !Lorentzian                  
+!Lorentzian                  
       IF (PACKET .EQ. LORNTZ) THEN 
          DO 10 IX=1,NPTS-1 
             PHI(IX)=CEXP(SQRTM1*K0*X(IX))/(SIGMA**2+(X(IX)-W0)**2) 
@@ -381,13 +388,24 @@
    10    END DO 
 !10    CONTINUE 
 !                                                                       
-                                           !Gaussian                    
+!Gaussian                    
       ELSE IF (PACKET .EQ. GAUSS) THEN 
          DO 20 IX=1,NPTS-1 
             PHI(IX)=CEXP(SQRTM1*K0*X(IX))*EXP(-(X(IX)-W0)**2/2/SIGMA**2) 
             PHI2(IX)=CABS(PHI(IX))**2 
    20    END DO 
 !20    CONTINUE 
+
+!User defined wavepacket                    
+      ELSE IF (PACKET .EQ. USER) THEN 
+           OPEN(66, FILE='wavepacket.txt', FORM='FORMATTED') 
+              DO  IX=1,NPTS 
+                READ (66,*) A_real,A_imag
+                PHI(IX) = CMPLX(A_real,A_imag) 
+                PHI2(IX)=CABS(PHI(IX))**2 
+!                print*, PHI(IX) 
+              ENDDO
+           CLOSE(66)
       END IF 
 !                                                                       
                             !potential is infinite at ends of lattice   
@@ -656,7 +674,7 @@
 !                                                                       
 !     set new parameter values                                          
 !     physical and numerical                                           
-     OPEN(10, FILE='INPUT', FORM='FORMATTED') 
+     OPEN(10, FILE='INP', FORM='FORMATTED') 
      READ(10,*) POT
      READ(10,*) X0
      READ(10,*) A
@@ -712,7 +730,7 @@
       !IF (TFILE) CALL FLOPEN(TNAME,TUNIT) 
       !IF (TFILE)  OPEN(TUNIT, FILE=TNAME, FORM='FORMATTED') 
 !      IF (TFILE)  OPEN(TUNIT, FILE='exmpl7.out1', FORM='FORMATTED') 
-      IF (GFILE)  OPEN(GUNIT, FILE='out.txt', FORM='FORMATTED') 
+      IF (GFILE)  OPEN(GUNIT, FILE='OUT.txt', FORM='FORMATTED') 
       !IF (GFILE) CALL FLOPEN(GNAME,GUNIT) 
       !files may have been renamed                                      
       MSTRNG(MINTS(ITNAME))=TNAME 
@@ -770,6 +788,19 @@
                V(IX)=0. 
             END IF 
          END DO 
+
+!Double Square bump/well                 
+     ELSE IF (POT .EQ. DOUBLE_SQUARE) THEN 
+         DO  IX=0,NPTS 
+            IF ((X(IX) .GE. (X0-A)) .AND. (X(IX) .LE. (X0+A))) THEN 
+               V(IX)=V0 
+            ELSE IF ((X(IX) .GE. ((X0+4*A)-A)) .AND. (X(IX) .LE. ((X0+4*A)+A))) THEN 
+               V(IX)=V0 
+            ELSE 
+               V(IX)=0. 
+            END IF 
+         END DO 
+
 ! GAUSS bump/well         
       ELSE IF (POT .EQ. GAUSS) THEN 
          DO  IX=0,NPTS 
@@ -817,8 +848,10 @@
        WRITE (MUNIT,2) 
        IF (POT .EQ. SQUARE) THEN 
          WRITE (MUNIT,6) 
-       ELSE IF (POT .EQ. GAUSS) THEN 
-         WRITE (MUNIT,8) 
+       ELSE IF (POT .EQ. DOUBLE_SQUARE) THEN 
+         WRITE (MUNIT,7) 
+       ELSE IF (POT .EQ. GAUSS) THEN   
+         WRITE (MUNIT,8)               
        ELSE IF (POT .EQ. PARAB) THEN 
          WRITE (MUNIT,10) 
        ELSE IF (POT .EQ. STEP) THEN 
@@ -830,6 +863,8 @@
          WRITE (MUNIT,16) 
        ELSE IF (PACKET .EQ. GAUSS) THEN 
          WRITE (MUNIT,18) 
+       ELSE IF (PACKET .EQ. USER) THEN 
+         WRITE (MUNIT,19) 
        END IF 
        WRITE (MUNIT,20) W0,SIGMA 
        WRITE (MUNIT,22) K0,K0**2 
@@ -841,6 +876,8 @@
     4  FORMAT                                                           &
      & (' Output from example 7: Time-dependent Schroedinger Equation') 
     6  FORMAT (' Square-barrier/well: V=V0 for X0-A < X < X0+A') 
+    7  FORMAT (' Double Square-barrier/well: V=V0 for X0-A < X < X0+A', &
+                  ' and   V=V0 for (X0+4*A) -A < X < (X0+4A)+A'     ) 
     8  FORMAT                                                           &
      & (' Gaussian barrier/well: V(X)=V0*(EXP-(AGAUSS*((X-X0)/A)**2))') 
    10  FORMAT (' Parabolic well: V(X)=V0*(X-X0)**2/A**2') 
@@ -851,6 +888,8 @@
      &         'PHI(X)=EXP(I*K0*X)/(SIGMA**2+(X-W0)**2)')               
    18  FORMAT (' Gaussian wavepacket: ',                                &
      &         'PHI(X)=EXP(I*K0*X)*EXP(-(X-W0)**2/2/SIGMA**2)')         
+   19  FORMAT (' USER defined wavepacket:',                             &
+               ' Read from file wavepacket.txt')
    20  FORMAT (' W0 = ',1PE12.5,5X,' SIGMA = ',1PE12.5) 
    22  FORMAT (' K0 = ',1PE12.5,5X,' K0**2 (energy scale) = ',1PE12.5) 
    24  FORMAT (' XMIDDLE = ',1PE12.5,5X,' NPTS = ',I5,5X,               &
@@ -971,7 +1010,9 @@
       RETURN 
       END                                           
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      SUBROUTINE GRFOUT(DEVICE,PHI2,TIME,TPROB,TX,E) 
+!     SUBROUTINE GRFOUT(DEVICE,PHI2,TIME,TPROB,TX,E)   !  Original
+!Redefined by MEK 2019.06.11 
+      SUBROUTINE GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)   
 ! outputs wavepacket and potential to DEVICE                            
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Global variables                                                      
@@ -979,18 +1020,20 @@
       INCLUDE 'PARAM.E7' 
       INCLUDE 'GRFDAT.ALL' 
 ! Input variables:                                                      
-                                !which device is being used?            
-      INTEGER DEVICE 
-                                !wavepacket squared                     
-      REAL PHI2(0:MAXLAT) 
-                                !time                                   
-      REAL TIME 
-                                !normalization of the wavepacket        
-      REAL TPROB 
-                                !average position                       
-      REAL TX 
-                                !energy                                 
-      REAL E 
+                                
+      INTEGER DEVICE        !which device is being used?                  
+                                                                         
+                              
+      COMPLEX PHI(0:MAXLAT)  !wavepacket
+      REAL PHI2(0:MAXLAT)    !wavepacket squared                                         
+                                                                         
+      REAL TIME             !time                                   
+                                                                         
+      REAL TPROB            !normalization of the wavepacket        
+                                                                         
+      REAL TX               !average position                       
+                                                                         
+      REAL E                !energy                                 
 ! Local variables                                                       
                                 !scaled wavepacket squared              
       REAL PHIGRF(0:MAXLAT) 
@@ -1066,11 +1109,21 @@
                                                     !clip high values   
          IF(PHIGRF(IX) .GT. VMAX) PHIGRF(IX)=VMAX 
    10 END DO 
-!                                                                       
+
+!  Writing wavepacket in file                                                                                
+       OPEN(66, FILE='wavepacket.txt', FORM='FORMATTED')
+!              WRITE (66,'(2(5X,E15.8))')  (REAL(PHI(IX)),CMPLX(PHI(IX)),IX=1,NPTS)
+             DO  IX=1,NPTS 
+!                WRITE (66,'(2(5X,E15.8))')  REAL(PHI(IX))
+                WRITE (66,'(3(5X,E15.8))')  PHI(IX), CABS(PHI(IX))**2
+             ENDDO
+      CLOSE(66)
+
 !     output results                                                    
       !IF (DEVICE .EQ. FILE) THEN 
          WRITE (GUNIT,60) TIME 
          WRITE (GUNIT,70)  (X(IX),V(IX),PHI2(IX),IX=1,NPTS) 
+         
       !ELSE 
           !CALL XYPLOT (X,V) 
           !CALL XYPLOT (X,PHIGRF) 
@@ -1145,10 +1198,10 @@
 !                                                                       
                                    !scale PHI2 so that it fits on Vscale
       VSCALE=(VMAX-VMIN)*NPTS/10. 
-      DO 10 IX=0,NPTS 
+      DO  IX=0,NPTS 
          PHIGRF(IX)=VMIN+PHI2(IX)*VSCALE 
          IF(PHIGRF(IX) .GT. VMAX) PHIGRF(IX)=VMAX 
-   10 END DO 
+     END DO 
 !                                                                       
                                    !plot data                           
       !CALL XYPLOT (X,V) 

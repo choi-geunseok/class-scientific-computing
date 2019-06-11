@@ -44,7 +44,7 @@ os.system('%s' % cmd)
 
 ### Read INPUT ###
 
-inp_all = read_words('INPUT')
+inp_all = read_words('INP')
 inp_val = []
 for i in range(len(inp_all)):
     inp_val.append(inp_all[i][0])
@@ -63,8 +63,8 @@ for j in val_list_float:
 
 ### Read OUTPUT ###
 
-out_all = read_words('out.txt')
-out_block = out_all[11:11+(inp_val[8])*(inp_val[9]+1)]
+out_all = read_words('OUT.txt')
+out_block = out_all[11:]
 out_time = []
 for i in range(inp_val[9]):
     time = out_block[(inp_val[8]+1)*i][-1]
@@ -98,7 +98,6 @@ for i in range(inp_val[9]):
 import matplotlib.pyplot as plt
 
 os.system('rm -rf *.png')
-os.system('mkdir result')
 
 for i in range(len(out_time)):
     plt.clf()
@@ -111,9 +110,6 @@ for i in range(len(out_time)):
     plt.legend(loc=2)
     plt.savefig('Wave_%04d.png' % (i+1), dpi=300)
 
-os.system('mv *.png result')
-os.chdir('result')
 os.system('convert -delay 5 -loop 1000 -quality 100 -resize 500x500 *.png movie.gif')
-os.system('rm -rf *.png')
 os.system('animate movie.gif')
 
