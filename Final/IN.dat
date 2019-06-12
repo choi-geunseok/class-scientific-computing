@@ -2,7 +2,7 @@
  0.1    ! X0: central position of potential on axis
  0.05   ! A: half width of potential
  0.15    ! V0: height of potential
- 3      ! PACKET: wavepacket parameter (1=LORNTZ, 2=GAUSS, 3=USER)
+ 2      ! PACKET: wavepacket parameter (1=LORNTZ, 2=GAUSS, 3=USER)
 -0.2    ! W0: Center of Packet
  0.05   ! SIGMA: Width of Packet
  25     ! CYCLES: no of cycles on lattice
