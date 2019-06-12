@@ -34,71 +34,57 @@ def read_words(filename):
 
 ############################################
 
-exename = input("Type the executable name:")
-path1 = os.getcwd()
-name1 = path1 + '\%s' % exename
-name1 = name1.split()
-name2 = name1[0]
-cmd = name2.replace('\\','/')
-os.system('%s' % cmd)
+### Set simulation tag ###
 
-### Read INPUT ###
-
-inp_all = read_words('INP')
-inp_val = []
-for i in range(len(inp_all)):
-    inp_val.append(inp_all[i][0])
-#c = inp_val[0]
-#del(inp_val[0])
-
-val_list_int   = [0, 4, 7, 8, 9, 11]
-val_list_float = [1, 2, 3, 5, 6, 10]
-
-for i in val_list_int:
-    inp_val[i] = int(inp_val[i])
-for j in val_list_float:
-    inp_val[j] = float(inp_val[j])
-
-############################################
+tagname = input("Type in the simulation tag:")
 
 ### Read OUTPUT ###
 
-out_all = read_words('OUT.txt')
+out_all = read_words('OUT.dat')
 out_block = out_all[11:]
-out_time = []
-for i in range(inp_val[9]):
-    time = out_block[(inp_val[8]+1)*i][-1]
+
+NSTEP = 0
+NPTS_count = []
+out_time = []; out_domain = []; out_barrier = []
+out_phi1 = []; out_phi2 = []
+
+for i in range(len(out_block)):
+    if out_block[i][0] == '#':
+        NSTEP += 1
+        NPTS_count.append(i)
+    else:
+        out_phi1.append(float(out_block[i][2]))
+
+NPTS = (NPTS_count[1] - NPTS_count[0]) - 1
+
+### Save evolution time ###
+for i in range(NSTEP):
+    time = out_block[(NPTS+1)*i][-1]
     time = float(time)
     out_time.append(time)
 
-out_domain = []; out_barrier = []
-for i in range(1,inp_val[8]+1):
+### Save domain & barrier ###
+for i in range(1, NPTS+1):
     domain = out_block[i][0]; barrier = out_block[i][1]
     domain = float(domain); barrier = float(barrier)
     out_domain.append(domain); out_barrier.append(barrier)
 
-out_phi1 = []
-out_phi2 = []
-for i in range(len(out_block)):
-    if out_block[i][0] == '#':
-        pass
-    else:
-        out_phi1.append(float(out_block[i][2]))
-
-for i in range(inp_val[9]):
+### Save wavepacket each time evolution step ###
+for i in range(NSTEP):
     line = []
-    for j in range(inp_val[8]):
-        line.append(out_phi1[inp_val[8]*i + j])
+    for j in range(NPTS):
+        line.append(out_phi1[NPTS*i + j])
     out_phi2.append(line)
 
 ############################################
 
-### Make movie ###
+### PNG Generation ###
 
 import matplotlib.pyplot as plt
 
 os.system('rm -rf *.png')
-
+os.system('rm -rf case_%s' % tagname)
+os.system('mkdir case_%s' % tagname)
 for i in range(len(out_time)):
     plt.clf()
     fig = plt.figure(figsize=(8,5))
@@ -109,3 +95,4 @@ for i in range(len(out_time)):
     line1 = plt.plot(out_domain,out_phi2[i], color='blue', label='Wave time at %5.4f sec' % (out_time[i]))
     plt.legend(loc=2)
     plt.savefig('Wave_%04d.png' % (i+1), dpi=300)
+os.system('mv *.png case_%s' % tagname)

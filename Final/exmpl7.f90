@@ -59,7 +59,7 @@
       NFREQ=10              !!def graphing freq (movies only)        
       !DTSCAL=.2            !!def scaled time step                   
       !DTMAX=100.           !!max scaled time step                   
-     OPEN(10, FILE='INP', FORM='FORMATTED') 
+     OPEN(10, FILE='IN.dat', FORM='FORMATTED') 
      READ(10,*) 
      READ(10,*) 
      READ(10,*) 
@@ -131,7 +131,7 @@
              !PAUSE('to see the wave packet ...') 
              !CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) 
           !END IF 
-         IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)         ! Redefined MEK:2019.06.11 
+!         IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)         ! Redefined MEK:2019.06.11 
 !        IF (GFILE) CALL GRFOUT(DEVICE,PHI,PHI2,TIME,TPROB,TX,E)  ! Redefined MEK:2019.06.11 
 !        IF (GHRDCP) CALL GRFOUT(PAPER,PHI2,TIME,TPROB,TX,E) !Original 
          IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)         ! Redefined MEK:2019.06.11 
@@ -530,7 +530,7 @@
      !&     CALL FLCLOS(GNAME,GUNIT)                                     
 !     set new parameter values                                          
 !     physical and numerical                                           
-     OPEN(10, FILE='INP', FORM='FORMATTED') 
+     OPEN(10, FILE='IN.dat', FORM='FORMATTED') 
      READ(10,*) POT
      READ(10,*) X0
      READ(10,*) A
@@ -583,7 +583,7 @@
       !IF (TFILE) CALL FLOPEN(TNAME,TUNIT) 
       !IF (TFILE)  OPEN(TUNIT, FILE=TNAME, FORM='FORMATTED') 
 !      IF (TFILE)  OPEN(TUNIT, FILE='exmpl7.out1', FORM='FORMATTED') 
-      IF (GFILE)  OPEN(GUNIT, FILE='OUT.txt', FORM='FORMATTED') 
+      IF (GFILE)  OPEN(GUNIT, FILE='OUT.dat', FORM='FORMATTED') 
       !IF (GFILE) CALL FLOPEN(GNAME,GUNIT) 
       !files may have been renamed                                      
       MSTRNG(MINTS(ITNAME))=TNAME 
