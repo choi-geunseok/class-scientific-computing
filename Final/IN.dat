@@ -8,5 +8,5 @@
  25     ! CYCLES: no of cycles on lattice
  100    ! NPTS:   no of grid points on axis
  200    ! NSTEP: number of time steps'
- -0.5    ! DTSCAL:  Enter time step (units of K0**-2)
+ 0.5    ! DTSCAL:  Enter time step (units of K0**-2)
  5      ! DTMAX:  max scaled time step
