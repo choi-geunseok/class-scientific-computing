@@ -35,11 +35,14 @@ def read_words(filename):
 ############################################
 
 ### Set simulation tag ###
-
-tagname = input("Type in the simulation tag:")
+if len(sys.argv) == 3 and sys.argv[1] == "--tag":
+    tagname = sys.argv[2]
+elif len(sys.argv) == 1:
+    tagname = "tmp"
+else:
+    print("Check the usage: python simviz.py --tag (filename)")
 
 ### Read OUTPUT ###
-
 out_all = read_words('OUT.dat')
 out_block = out_all[11:]
 

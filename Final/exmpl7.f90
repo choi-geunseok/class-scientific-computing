@@ -5,12 +5,15 @@
 !  by Steven E. Koonin and Dawn C. Meredith                             
 !  Copyright 1989, Addison-Wesley Publishing Company, Inc.              
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-                          
+! Revisions for KAIST EE498B, Spring 2019 class
+! 190613: Clean-up & revision by YHK
+! May-June 2019: 1st draft by MEK
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       CALL INIT       !display header screen, setup parameters        
-      !5 CONTINUE     !main loop/ execute once for each set of param
+!5     CONTINUE     !main loop/ execute once for each set of param
       CALL PARAM    !get input from screen                        
       CALL ARCHON   !calculate time evolution of a wavepacket     
-      !GOTO 5 
+!      GOTO 5 
       END                                           
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SUBROUTINE ARCHON 
@@ -28,7 +31,7 @@
       REAL LX,RX,TX            !average position                      
       REAL E                   !energy                                
       REAL DT                  !time step                             
-      INTEGER IT               !time index                            
+      INTEGER IT               !time index                              
       REAL DTSCAL              !scaled time step                      
       REAL DTMIN,DTMAX         !min,max reasonable size for DTSCAL    
       INTEGER NLINES           !number of lines printed to terminal   
@@ -43,85 +46,84 @@
       INTEGER EL                                                        !
 ! Functions:                     Evolution loop                         
       REAL GETFLT              !get floating point number from screen 
-      INTEGER YESNO            !get yes/no answer from screen         
-      LOGICAL LOGCVT           !change from 1,0 to true and false     
-      INTEGER GETINT           !get integer data from screen          
+!      INTEGER YESNO            !get yes/no answer from screen         
+!      LOGICAL LOGCVT           !change from 1,0 to true and false     
+!      INTEGER GETINT           !get integer data from screen          
       DATA SCREEN,PAPER,FILE/1,2,3/ 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !     output summary of parameters                                      
       IF (TTERM) CALL PRMOUT(OUNIT,NLINES) 
-      IF (TFILE) CALL PRMOUT(TUNIT,NLINES) 
+!      IF (TFILE) CALL PRMOUT(TUNIT,NLINES) 
       IF (GFILE) CALL PRMOUT(GUNIT,NLINES) 
                                 
       CALL INTPHI(PHI,PHI2) !setup initial PHI array                
-      TIME=0.               !initialize time                        
-      !NSTEP=40             !def num of time steps until next prompt
-      NFREQ=10              !!def graphing freq (movies only)        
-      !DTSCAL=.2            !!def scaled time step                   
-      !DTMAX=100.           !!max scaled time step                   
-     OPEN(10, FILE='IN.dat', FORM='FORMATTED') 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*) 
-     READ(10,*)NSTEP
-     READ(10,*)DTSCAL 
-     READ(10,*)DTMAX 
-     CLOSE(10)
-     DTMIN=DX**2*K0**2/25. !minimum scaled time step               
-!     OPEN(10, FILE='INPUT', FORM='FORMATTED') 
-!     READ(10,*) ET 
-!     CLOSE(10)     
-!     DO  EL=1,ET 
-      !    DO  IT=1,NSTEP 
-      !10 CONTINUE 
-        !print*, 'Enter time step (units of K0**-2)'
-        !read(*,*) DTSCALE 
-        !DTSCAL=GETFLT(DTSCAL,-DTMAX,DTMAX,                 &
-     !&      'Enter time step (units of K0**-2)')                        
-        IF (ABS(DTSCAL) .LT. DTMIN)      &    !don't let it get too small               
-            DTSCAL=SIGN(DTMIN,DTSCAL)    !physical time                                                
-        DT=DTSCAL/K0**2 
-        !NSTEP=GETINT(NSTEP,1,1000,'Enter number of time steps') 
-        !print*, 'Enter number of time steps'
-        !read(*,*) NSTEPS
-        NLINES=NLINES+4 
-        IF (MOVIES) THEN 
+      TIME=0.               !initialize time
+!Revised by MEK
+!      NSTEP=40             !def num of time steps until next prompt
+      NFREQ=10              !def graphing freq (movies only)        
+!      DTSCAL=.2            !def scaled time step                   
+!      DTMAX=100.           !max scaled time step                   
+!
+      OPEN(10, FILE='IN.dat', FORM='FORMATTED') 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*) 
+      READ(10,*)NSTEP
+      READ(10,*)DTSCAL 
+      READ(10,*)DTMAX 
+      CLOSE(10)
+!
+      DTMIN=DX**2*K0**2/25. !minimum scaled time step               
+!10   CONTINUE 
+!        DTSCAL=GETFLT(DTSCAL,-DTMAX,DTMAX,                 &
+!     &      'Enter time step (units of K0**-2)')                        
+        IF(ABS(DTSCAL) .LT. DTMIN)  &        
+            DTSCAL=SIGN(DTMIN,DTSCAL)       !don't let it get too small        
+        DT=DTSCAL/K0**2                      !physical time
+!        NSTEP=GETINT(NSTEP,1,1000,'Enter number of time steps') 
+        NLINES=NLINES+4
+!
+        !IF (MOVIES) THEN 
            !NFREQ=GETINT(NFREQ,1,1000,'Enter graphing frequency') 
-           !print*, read(*,*) NFREQ
            !make sure that total num of frames is divisible by 4        
-           DIFF=MOD(NSTEP,4*NFREQ) 
-           IF (DIFF .NE. 0) NSTEP=NSTEP+4*NFREQ-DIFF 
-        END IF 
+           !DIFF=MOD(NSTEP,4*NFREQ) 
+           !IF (DIFF .NE. 0) NSTEP=NSTEP+4*NFREQ-DIFF 
+        !END IF
+!        
         CALL TRDIAG(DT) !calculate GAMMA for this DT           
-        IF (TFILE) CALL TITLES(TUNIT,NLINES,DT) 
+        IF (TFILE) CALL TITLES(TUNIT,NLINES,DT)
+!        
 !15   CONTINUE    !loop over sets of NSTEP time steps    
-          IF (TTERM) CALL TITLES(OUNIT,NLINES,DT) 
-          DO  IT=1,NSTEP      !time evolution                 
-             TIME=TIME+DT     !take a time step  
-             CALL EVOLVE(PHI,PHI2,DT) 
-             CALL NORMLZ(PHI2,LPROB,RPROB,TPROB,LX,RX,TX) 
-             CALL ENERGY(PHI,PHI2,E) 
-             !output                                                    
-             IF ((MOVIES) .AND. (MOD(IT,NFREQ) .EQ. 0)) THEN 
-                FRAME=MOD(IT/NFREQ,4) 
-                IF (FRAME .EQ. 1) THEN 
-!                    CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) ! Original
-                     CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)  ! Redefined MEK:2019.06.11 
-                ELSE 
-                    CALL GRFSEC(SCREEN,PHI2,TIME,TPROB,TX,FRAME) 
-                END IF 
-             END IF 
-             IF (TTERM) CALL                                            &
+        IF (TTERM) CALL TITLES(OUNIT,NLINES,DT)
+!        
+        DO  IT=1,NSTEP      !time evolution                 
+           TIME=TIME+DT     !take a time step  
+           CALL EVOLVE(PHI,PHI2,DT) 
+           CALL NORMLZ(PHI2,LPROB,RPROB,TPROB,LX,RX,TX) 
+           CALL ENERGY(PHI,PHI2,E) 
+           !output                                                    
+!           IF ((MOVIES) .AND. (MOD(IT,NFREQ) .EQ. 0)) THEN 
+!              FRAME=MOD(IT/NFREQ,4) 
+              IF (FRAME .EQ. 1) THEN
+!                 CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) 
+                 CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)  
+!<--
+!              ELSE 
+!                 CALL GRFSEC(SCREEN,PHI2,TIME,TPROB,TX,FRAME) 
+              END IF
+!           END IF
+           IF (TTERM) CALL                                            &
      &        TXTOUT(OUNIT,E,TIME,LPROB,RPROB,TPROB,LX,RX,TX,NLINES)    
-             IF (TFILE) CALL                                            &
-     &        TXTOUT(TUNIT,E,TIME,LPROB,RPROB,TPROB,LX,RX,TX,NLINES)    
-!   20     CONTINUE 
+!           IF (TFILE) CALL                                            &
+!     &        TXTOUT(TUNIT,E,TIME,LPROB,RPROB,TPROB,LX,RX,TX,NLINES)    
+!          END DO
+
 !         graphics output                                               
           !IF (MOVIES) THEN 
              !CALL TMODE 
@@ -131,32 +133,33 @@
              !PAUSE('to see the wave packet ...') 
              !CALL GRFOUT(SCREEN,PHI2,TIME,TPROB,TX,E) 
           !END IF 
-!         IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)         ! Redefined MEK:2019.06.11 
-!        IF (GFILE) CALL GRFOUT(DEVICE,PHI,PHI2,TIME,TPROB,TX,E)  ! Redefined MEK:2019.06.11 
-!        IF (GHRDCP) CALL GRFOUT(PAPER,PHI2,TIME,TPROB,TX,E) !Original 
-         IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)         ! Redefined MEK:2019.06.11 
-          !MORE=LOGCVT(YESNO(1,'Continue iterating?')) 
-          MORE= .TRUE.  
-        !IF (MORE) THEN 
-            !NLINES=0 
-            !IF (TTERM) system('clear') 
-            !GOTO 15 
-        !END IF 
-        !NEWDT=LOGCVT(YESNO(1,'Change time step and continue?')) 
-        NEWDT= .TRUE. 
-      IF (NEWDT) THEN 
-        NLINES=0 
-        !IF (TTERM) system('clear')
-!GOTO 10 
-      END IF 
-     END DO
+! Revised by MEK:2019.06.11 
+!        IF (GFILE) CALL GRFOUT(DEVICE,PHI,PHI2,TIME,TPROB,TX,E)  
+         IF (GFILE) CALL GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)         
+!        IF (GHRDCP) CALL GRFOUT(PAPER,PHI2,TIME,TPROB,TX,E)      !Original 
+!
+!          MORE=LOGCVT(YESNO(1,'Continue iterating?')) 
+!        IF (MORE) THEN 
+!            NLINES=0 
+!            IF (TTERM) system('clear') 
+!            GOTO 15 
+!        END IF 
+! 
+!        NEWDT=LOGCVT(YESNO(1,'Change time step and continue?')) 
+!      IF (NEWDT) THEN 
+!        NLINES=0 
+!        IF (TTERM) system('clear')
+!        GOTO 10 
+!      END IF 
+         !
+      END DO
       RETURN 
       END                                           
-!-----------------------------------------------------------------------
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SUBROUTINE EVOLVE(PHI,PHI2,DT) 
 ! take one time step using the implicit algorithm                       
 ! (Eq. 7.30-7.33 and 7.11-7.16)                                         
-!-----------------------------------------------------------------------
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Global variables:                                                     
       INCLUDE 'PARAM.E7' 
 ! Input/output variables:                                               
@@ -168,7 +171,7 @@
       COMPLEX CHI                !part of wave function                 
       COMPLEX BETA(0:MAXLAT)     !term in matrix inversion              
       INTEGER IX                 !lattice index                         
-!-----------------------------------------------------------------------
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       CONST=4*SQRTM1*DX*DX/DT 
       BETA(NPTS-1)=0.           !initial conditions for BETA              
       DO  IX=NPTS-2,0,-1      !backward recursion for BETA           
@@ -182,7 +185,7 @@
       END DO 
       RETURN 
       END                                           
-!-----------------------------------------------------------------------
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SUBROUTINE TRDIAG(DT) 
 ! calculate GAMMA for the inversion of the tridiagonal matrix           
 ! (Eq. 7.30-7.33 and 7.11-7.16)                                         
@@ -282,36 +285,102 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !Lorentzian                  
       IF (PACKET .EQ. LORNTZ) THEN 
-         DO  IX=1,NPTS-1 
+         DO IX=1,NPTS-1 
             PHI(IX)=CEXP(SQRTM1*K0*X(IX))/(SIGMA**2+(X(IX)-W0)**2) 
             PHI2(IX)=CABS(PHI(IX))**2 
          END DO 
 !Gaussian                    
       ELSE IF (PACKET .EQ. GAUSS) THEN 
-         DO  IX=1,NPTS-1 
+         DO IX=1,NPTS-1 
             PHI(IX)=CEXP(SQRTM1*K0*X(IX))*EXP(-(X(IX)-W0)**2/2/SIGMA**2) 
             PHI2(IX)=CABS(PHI(IX))**2 
-         END DO 
-!User defined wavepacket                    
+         END DO
+!MEK+YHK:
+!Added option: User defined wavepacket -->
       ELSE IF (PACKET .EQ. USER) THEN 
-           OPEN(66, FILE='wavepacket.txt', FORM='FORMATTED') 
-              DO  IX=1,NPTS 
-                READ (66,*) A_real,A_imag
-                PHI(IX) = CMPLX(A_real,A_imag) 
-                PHI2(IX)=CABS(PHI(IX))**2 
+           OPEN(66, FILE='wavepacket.dat', FORM='FORMATTED') 
+           DO  ix=0,npts 
+              READ (66,*) a_real,a_imag
+              phi(ix) = CMPLX(a_real,a_imag) 
+              phi2(ix) = CABS(phi(ix))**2 
 !                print*, PHI(IX) 
-              ENDDO
+           END DO
            CLOSE(66)
-      END IF 
+!<--
+      END IF
       PHI(0)=0.      !potential is infinite at ends of lattice    
       PHI(NPTS)=0.   ! so PHI is zero there                      
                                                   
       CALL NORMLZ(PHI2,LPROB,RPROB,NORM,LX,RX,TX) !normalize wavepacket 
       SQRTN=SQRT(NORM) 
-      DO  IX=0,NPTS 
+      DO IX=0,NPTS 
          PHI(IX)=PHI(IX)/SQRTN 
          PHI2(IX)=PHI2(IX)/NORM 
       END DO 
+      RETURN 
+      END                                           
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      SUBROUTINE POTNTL 
+! fills the potential array                                             
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! Global variables:                                                     
+      INCLUDE 'PARAM.E7' 
+! Local variables:                                                      
+      INTEGER IX 
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      DO 5 IX=0,NPTS 
+         X(IX)=VXMIN+IX*DX 
+    5 END DO 
+!Square bump/well                 
+      IF (POT .EQ. SQUARE) THEN 
+         DO  IX=0,NPTS 
+            IF ((X(IX) .GE. (X0-A)) .AND. (X(IX) .LE. (X0+A))) THEN 
+               V(IX)=V0 
+            ELSE 
+               V(IX)=0. 
+            END IF 
+         END DO 
+
+! GAUSS bump/well         
+      ELSE IF (POT .EQ. GAUSS) THEN 
+         DO  IX=0,NPTS 
+            V(IX)=V0*EXP(-AGAUSS*(X(IX)-X0)**2/A**2) 
+           ! V(IX)=V0*EXP(-AGAUSS*(X(IX)-X0)**2/A**2) +  V0*EXP(-AGAUSS*(X(IX)-X0+0.4)**2/A**2) 
+         END DO
+         
+!Parabola                         
+      ELSE IF (POT .EQ. PARAB) THEN 
+         DO  IX=0,NPTS 
+            V(IX)=V0*((X(IX)-X0)**2/A**2) 
+         END DO
+         
+!Smooth step function             
+      ELSE IF (POT .EQ. STEP) THEN 
+         DO  IX=0,NPTS 
+            V(IX)=V0/2*(2/PI*ATAN(ASTEP*(X(IX)-X0)/A)+1.) 
+         END DO
+
+!MEK: Added option-->
+!Double Square bump/well                 
+     ELSE IF (POT .EQ. DOUBLE) THEN 
+         DO  IX=0,NPTS 
+            IF ((X(IX) .GE. (X0-A)) .AND. (X(IX) .LE. (X0+A))) THEN 
+               V(IX)=V0 
+            ELSE IF ((X(IX) .GE. ((X0+4*A)-A)) .AND. (X(IX) .LE. ((X0+4*A)+A))) THEN 
+               V(IX)=V0 
+            ELSE 
+               V(IX)=0. 
+            END IF 
+         END DO
+!<--         
+      END IF 
+      VMAX=V(0)      !find VMAX and VMIN to give     
+      VMIN=V(0)      !a scale for graphics       
+      DO  IX=1,NPTS 
+         IF (V(IX) .GT. VMAX) VMAX=V(IX) 
+         IF (V(IX) .LT. VMIN) VMIN=V(IX) 
+      END DO 
+      IF (VMAX .EQ. VMIN) VMAX=VMIN+1     !need a nonzero difference
       RETURN 
       END                                           
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -526,10 +595,22 @@
 !     close files if necessary                                          
       !IF (TNAME .NE. MSTRNG(MINTS(ITNAME)))        &
      !&     CALL FLCLOS(TNAME,TUNIT)                   
-      !IF (GNAME .NE. MSTRNG(MINTS(IGNAME)))        &
+      !IF (GNAME .NE. MSTRNG
      !&     CALL FLCLOS(GNAME,GUNIT)                                     
 !     set new parameter values                                          
 !     physical and numerical                                           
+!Revised by MEK:
+      !POT=MINTS(IPOT) 
+      !X0=MREALS(IX0) 
+      !A=MREALS(IA) 
+      !V0=MREALS(IV0) 
+      !XMID=MREALS(IXMID) 
+      !PACKET=MINTS(IPACK) 
+      !SIGMA=MREALS(ISIGMA) 
+      !W0=MREALS(IW0) 
+      !CYCLES=MREALS(ICYCLE) 
+      !NPTS=MINTS(INPTS) 
+!      NPTS=5 
      OPEN(10, FILE='IN.dat', FORM='FORMATTED') 
      READ(10,*) POT
      READ(10,*) X0
@@ -543,54 +624,44 @@
      CLOSE(10)
      XMID=X0
       !print*, POT,NPTS
-      !POT=MINTS(IPOT) 
-      !X0=MREALS(IX0) 
-      !A=MREALS(IA) 
-      !V0=MREALS(IV0) 
-      !XMID=MREALS(IXMID) 
-      !PACKET=MINTS(IPACK) 
-      !SIGMA=MREALS(ISIGMA) 
-      !W0=MREALS(IW0) 
-      !CYCLES=MREALS(ICYCLE) 
-      !NPTS=MINTS(INPTS) 
-      !NPTS=5 
 
 !     text output                                                       
       !TTERM=LOGCVT(MINTS(ITTERM)) 
       !TFILE=LOGCVT(MINTS(ITFILE)) 
       !TNAME=MSTRNG(MINTS(ITNAME)) 
-      TNAME=MSTRNG(MINTS(75)) 
-      TTERM= .TRUE. 
-      TFILE= .TRUE. 
-      TUNIT =  6
+!--> Now, fixed as:
+      TTERM = .TRUE.    !write text output to terminal? YES
+      TFILE = .FALSE.   !write text output to a file? NO
+      TUNIT =  6        !standard FORTRAN screen output UNIT
       GUNIT =  7
       !print*, 'TTERM', TTERM      
       !print*, 'TFILE', TFILE      
-      !print*, 'TNAME ', TNAME,ITNAME      
       !print*,'TUNIT',  TUNIT
+      !print*,'GUNIT',  GUNIT      
       !print*, 'NPTS', NPTS
+      !PAUSE
 
 !     graphics output                                                   
       !GTERM=LOGCVT(MINTS(IGTERM)) 
       !GHRDCP=LOGCVT(MINTS(IGHRD)) 
       !GFILE=LOGCVT(MINTS(IGFILE)) 
-      GFILE= .TRUE.
-      !GNAME=MSTRNG(MINTS(IGNAME)) 
-      !print*, 'GNAME ',GNAME  
-      !print*, 'TNAME ',TNAME 
+      !GNAME=MSTRNG(MINTS(IGNAME))
+!--> Now, fixed as:
+      GTERM = .FALSE.   !send graphics output to terminal?
+      GHRDCP = .FALSE.  !send graphics output to hardcopy device?
+      GFILE = .TRUE.    !send graphics data to a file?
 
 !     open files                                                        
       !IF (TFILE) CALL FLOPEN(TNAME,TUNIT) 
-      !IF (TFILE)  OPEN(TUNIT, FILE=TNAME, FORM='FORMATTED') 
-!      IF (TFILE)  OPEN(TUNIT, FILE='exmpl7.out1', FORM='FORMATTED') 
-      IF (GFILE)  OPEN(GUNIT, FILE='OUT.dat', FORM='FORMATTED') 
       !IF (GFILE) CALL FLOPEN(GNAME,GUNIT) 
+!      IF (TFILE)  OPEN(TUNIT, FILE=TNAME, FORM='FORMATTED') 
+      IF (GFILE)  OPEN(GUNIT, FILE='OUT.dat', FORM='FORMATTED') 
       !files may have been renamed                                      
-      MSTRNG(MINTS(ITNAME))=TNAME 
-      MSTRNG(MINTS(IGNAME))=GNAME 
+!      MSTRNG(MINTS(ITNAME))=TNAME 
+!      MSTRNG(MINTS(IGNAME))=GNAME 
 !     derivative parameters                                             
       MOVIES=.FALSE. 
-      IF ((GTERM) .AND. (.NOT. TTERM)) MOVIES=.TRUE. 
+!      IF ((GTERM) .AND. (.NOT. TTERM)) MOVIES=.TRUE. 
                                        
       DX=(VXMAX-VXMIN)/NPTS         !spatial step                    
       IMID=NINT((XMID-VXMIN)/DX)    !nearest lattice index to XMID   
@@ -599,75 +670,16 @@
 !     check CYCLES with respect to lattice size                         
       MAXCYC=REAL(NPTS)/4.          !max number of cycles for NPTS   
       IF (CYCLES .GT. MAXCYC) THEN 
-         WRITE (OUNIT,*) 'Number of cycles is too large for NPTS' 
+         !WRITE (OUNIT,*) 'Number of cycles is too large for NPTS'
+         WRITE (OUNIT,*) 'WARNING!!! Number of cycles is too large for NPTS' 
          !CYCLES=GETFLT(MAXCYC/10.,-MAXCYC,MAXCYC,                       &
      !&      'Enter number of cycles = K0/PI')                           
          MREALS(ICYCLE)=CYCLES 
       END IF 
-      K0=CYCLES*2*PI/(VXMAX-VXMIN) 
+      K0=CYCLES*2*PI/(VXMAX-VXMIN)  
       !system('clear')
       CALL POTNTL                                !setup potential array            
-      IF ((GTERM) .OR. (GHRDCP)) CALL GRFINT     !initialize graphing param 
-      RETURN 
-      END                                           
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      SUBROUTINE POTNTL 
-! fills the potential array                                             
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-! Global variables:                                                     
-      INCLUDE 'PARAM.E7' 
-! Local variables:                                                      
-      INTEGER IX 
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      DO 5 IX=0,NPTS 
-         X(IX)=VXMIN+IX*DX 
-    5 END DO 
-!Square bump/well                 
-      IF (POT .EQ. SQUARE) THEN 
-         DO  IX=0,NPTS 
-            IF ((X(IX) .GE. (X0-A)) .AND. (X(IX) .LE. (X0+A))) THEN 
-               V(IX)=V0 
-            ELSE 
-               V(IX)=0. 
-            END IF 
-         END DO 
-
-!Double Square bump/well                 
-     ELSE IF (POT .EQ. DOUBLE_SQUARE) THEN 
-         DO  IX=0,NPTS 
-            IF ((X(IX) .GE. (X0-A)) .AND. (X(IX) .LE. (X0+A))) THEN 
-               V(IX)=V0 
-            ELSE IF ((X(IX) .GE. ((X0+4*A)-A)) .AND. (X(IX) .LE. ((X0+4*A)+A))) THEN 
-               V(IX)=V0 
-            ELSE 
-               V(IX)=0. 
-            END IF 
-         END DO 
-
-! GAUSS bump/well         
-      ELSE IF (POT .EQ. GAUSS) THEN 
-         DO  IX=0,NPTS 
-            V(IX)=V0*EXP(-AGAUSS*(X(IX)-X0)**2/A**2) 
-           ! V(IX)=V0*EXP(-AGAUSS*(X(IX)-X0)**2/A**2) +  V0*EXP(-AGAUSS*(X(IX)-X0+0.4)**2/A**2) 
-         END DO 
-!Parabola                         
-      ELSE IF (POT .EQ. PARAB) THEN 
-         DO  IX=0,NPTS 
-            V(IX)=V0*((X(IX)-X0)**2/A**2) 
-         END DO 
-!Smooth step function             
-      ELSE IF (POT .EQ. STEP) THEN 
-         DO  IX=0,NPTS 
-            V(IX)=V0/2*(2/PI*ATAN(ASTEP*(X(IX)-X0)/A)+1.) 
-         END DO 
-      END IF 
-      VMAX=V(0)      !find VMAX and VMIN to give     
-      VMIN=V(0)      !a scale for graphics       
-      DO  IX=1,NPTS 
-         IF (V(IX) .GT. VMAX) VMAX=V(IX) 
-         IF (V(IX) .LT. VMIN) VMIN=V(IX) 
-      END DO 
-      IF (VMAX .EQ. VMIN) VMAX=VMIN+1     !need a nonzero difference
+!      IF ((GTERM) .OR. (GHRDCP)) CALL GRFINT     !initialize graphing param 
       RETURN 
       END                                           
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -688,15 +700,17 @@
        WRITE (MUNIT,2) 
        IF (POT .EQ. SQUARE) THEN 
          WRITE (MUNIT,6) 
-       ELSE IF (POT .EQ. DOUBLE_SQUARE) THEN 
-         WRITE (MUNIT,7) 
        ELSE IF (POT .EQ. GAUSS) THEN   
          WRITE (MUNIT,8)               
        ELSE IF (POT .EQ. PARAB) THEN 
          WRITE (MUNIT,10) 
        ELSE IF (POT .EQ. STEP) THEN 
          WRITE (MUNIT,12) 
-       END IF 
+!MEK: added option-->
+       ELSE IF (POT .EQ. DOUBLE) THEN 
+         WRITE (MUNIT,7) 
+!<--
+       END IF
        WRITE (MUNIT,14) X0,A,V0 
        WRITE (MUNIT,2) 
        IF (PACKET .EQ. LORNTZ) THEN 
@@ -714,8 +728,6 @@
     4  FORMAT                                                           &
      & (' Output from example 7: Time-dependent Schroedinger Equation') 
     6  FORMAT (' Square-barrier/well: V=V0 for X0-A < X < X0+A') 
-    7  FORMAT (' Double Square-barrier/well: V=V0 for X0-A < X < X0+A', &
-                  ' and   V=V0 for (X0+4*A) -A < X < (X0+4A)+A'     ) 
     8  FORMAT                                                           &
      & (' Gaussian barrier/well: V(X)=V0*(EXP-(AGAUSS*((X-X0)/A)**2))') 
    10  FORMAT (' Parabolic well: V(X)=V0*(X-X0)**2/A**2') 
@@ -726,8 +738,12 @@
      &         'PHI(X)=EXP(I*K0*X)/(SIGMA**2+(X-W0)**2)')               
    18  FORMAT (' Gaussian wavepacket: ',                                &
      &         'PHI(X)=EXP(I*K0*X)*EXP(-(X-W0)**2/2/SIGMA**2)')         
+!MEK: Added options-->
+    7  FORMAT (' Double Square-barrier/well: V=V0 for X0-A < X < X0+A', &
+                  ' and   V=V0 for (X0+4*A) -A < X < (X0+4A)+A'     ) 
    19  FORMAT (' USER defined wavepacket:',                             &
-               ' Read from file wavepacket.txt')
+               ' Read from file wavepacket.dat')
+!<--
    20  FORMAT (' W0 = ',1PE12.5,5X,' SIGMA = ',1PE12.5) 
    22  FORMAT (' K0 = ',1PE12.5,5X,' K0**2 (energy scale) = ',1PE12.5) 
    24  FORMAT (' XMIDDLE = ',1PE12.5,5X,' NPTS = ',I5,5X,               &
@@ -830,8 +846,8 @@
       RETURN 
       END                                           
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!     SUBROUTINE GRFOUT(DEVICE,PHI2,TIME,TPROB,TX,E)   !  Original
 !Redefined by MEK 2019.06.11 
+!     SUBROUTINE GRFOUT(DEVICE,PHI2,TIME,TPROB,TX,E)   !  Original
       SUBROUTINE GRFOUT(PHI,PHI2,TIME,TPROB,TX,E)   
 ! outputs wavepacket and potential to DEVICE                            
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -841,7 +857,7 @@
       INCLUDE 'GRFDAT.ALL' 
 ! Input variables:                                                      
                                 
-      INTEGER DEVICE         !which device is being used?                  
+!      INTEGER DEVICE         !which device is being used?                  
                               
       COMPLEX PHI(0:MAXLAT)  !wavepacket
       REAL PHI2(0:MAXLAT)    !wavepacket squared                                         
@@ -863,15 +879,15 @@
       DATA SCREEN,PAPER,FILE/1,2,3/ 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !     messages for the impatient                                        
-      IF (DEVICE .NE. SCREEN) WRITE (OUNIT,100) 
+!      IF (DEVICE .NE. SCREEN) WRITE (OUNIT,100) 
 !     calculate parameters for graphing                                 
       !IF (DEVICE .NE. FILE) THEN 
-          IF (.NOT. MOVIES) THEN 
-            NPLOT=1               !how many plots?              
-          ELSE                                                  
-            NPLOT=4               !for movies, there are       
-          END IF                  ! 4 plots per page           
-          IPLOT=1                                               
+          !IF (.NOT. MOVIES) THEN 
+            !NPLOT=1               !how many plots?              
+          !ELSE                                                  
+            !NPLOT=4               !for movies, there are       
+          !END IF                  ! 4 plots per page           
+          !IPLOT=1                                               
           !CALL CONVRT(TX,CTX,TXLEN) 
           !CALL CONVRT(TIME,CTIME,TLEN) 
           !INFO='t='//CTIME(1:TLEN)//'  norm='//             &
@@ -895,17 +911,18 @@
 !     one lattice point).  The following scale assumes that the maximum 
 !     value is 10/NPTS (prob equally shared by one-tenth of the points) 
       VSCALE=(VMAX-VMIN)*NPTS/10.     !scale PHI2 so that it fits on Vscale 
-      DO 10 IX=0,NPTS 
+      DO IX=0,NPTS 
          PHIGRF(IX)=VMIN+PHI2(IX)*VSCALE 
          IF(PHIGRF(IX) .GT. VMAX) PHIGRF(IX)=VMAX   !clip high values    
-   10 END DO 
-!  Writing wavepacket in file                                                                                
-       OPEN(66, FILE='wavepacket.txt', FORM='FORMATTED')
-!              WRITE (66,'(2(5X,E15.8))')  (REAL(PHI(IX)),CMPLX(PHI(IX)),IX=1,NPTS)
-             DO  IX=1,NPTS 
+      END DO
+      
+! MEK+YHK: Saving wavepacket at  <wavepacket.dat> file
+      OPEN(66, FILE='wavepacket.dat', FORM='FORMATTED')
+!      WRITE (66,'(2(5X,E15.8))')  (REAL(PHI(IX)),CMPLX(PHI(IX)),IX=1,NPTS)
+             DO  ix=0,npts 
 !                WRITE (66,'(2(5X,E15.8))')  REAL(PHI(IX))
-                WRITE (66,'(3(5X,E15.8))')  PHI(IX), CABS(PHI(IX))**2
-             ENDDO
+                WRITE (66,'(3(5x,e15.8))')  phi(ix), cabs(phi(ix))**2
+             END DO
       CLOSE(66)
 
 !     output results                                                    
@@ -921,7 +938,7 @@
         !IF (DEVICE .NE. FILE) CALL GPAGE(DEVICE) 
         !IF (DEVICE .EQ. SCREEN) CALL TMODE 
       !END IF 
-   60 FORMAT ('# X,V, PHI2 at time = ',1PE15.8) 
+   60 FORMAT ('# X, V, PHI2 at time = ',1PE15.8) 
    70 FORMAT (3(5X,E15.8)) 
   100 FORMAT (/,' Patience, please; output going to a file.') 
       RETURN 
@@ -952,8 +969,8 @@
       INTEGER FILE                !send to a file                         
       DATA SCREEN,PAPER,FILE/1,2,3/ 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IPLOT=FRAME                     !associate plots with frames          
-      IF (IPLOT .EQ. 0) IPLOT=4                                       
+      !IPLOT=FRAME                     !associate plots with frames          
+      !IF (IPLOT .EQ. 0) IPLOT=4                                       
       !CALL CONVRT(TPROB,CPROB,PLEN)  !create legend                       
       !CALL CONVRT(TX,CTX,TXLEN) 
       !CALL CONVRT(TIME,CTIME,TLEN) 
