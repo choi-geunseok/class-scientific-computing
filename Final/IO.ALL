@@ -18,12 +18,12 @@
       INTEGER GRFFIL     !send graphics data to a file?
 !C       
 !C     i/o input parameters for this run
-      LOGICAL TTERM           !write text output to terminal?
-      LOGICAL TFILE           !write text output to a file?
+      LOGICAL TTERM           !write text output to terminal?		.TRUE.
+      LOGICAL TFILE           !write text output to a file?		.FALSE.
       CHARACTER*12 TNAME      !name of text file
-      LOGICAL GTERM           !send graphics output to terminal?
-      LOGICAL GHRDCP          !send graphics output to hardcopy device?
-      LOGICAL GFILE           !send graphics data to a file?
+      LOGICAL GTERM           !send graphics output to terminal?	.FALSE.
+      LOGICAL GHRDCP          !send graphics output to hardcopy device?	.FALSE.
+      LOGICAL GFILE           !send graphics data to a file?		.TRUE.
       CHARACTER*12 GNAME      !name of graphics data file
 !C
       COMMON /IO/TUNIT,GUNIT,IUNIT,OUNIT,DUNIT,TRMLIN,TRMWID,TXTTRM, &

@@ -10,12 +10,17 @@
 ###
 
 ###
-import os, sys, math
+import os, sys
 
-os.system('rm -rf animation')
-os.system('mkdir animation')
-os.system('mv *.png animation')
-os.chdir('animation')
-os.system('convert -delay 5 -loop 1000 -quality 100 -resize 500x500 *.png movie.gif')
-os.system('animate movie.gif')
+############################################
+
+### Set simulation tag ###
+
+tagname = input("Type in the simulation tag:")
+
+### Generate a movie from PNG files ###
+
+os.chdir('case_%s' % tagname)
+os.system('convert -delay 5 -loop 1000 -quality 100 -resize 500x500 *.png movie_%s.gif' % tagname)
+os.system('animate movie_%s.gif' % tagname)
 
